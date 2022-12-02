@@ -83,9 +83,9 @@ class Cadastro(Funcs):
 
     def div_tela(self):
         self.frame_1 = Frame(self.root, bd = 4, bg = "LightSteelBlue", highlightbackground= "LightPink", highlightthickness= 3)
-        self.frame_1.place(relx = 0.1, rely= 0.06, relwidth= 0.8, relheight= 0.4) #0 esquerdo, 1 direito
+        self.frame_1.place(relx = 0.1, rely= 0.04, relwidth= 0.8, relheight= 0.5) #0 esquerdo, 1 direito
         self.frame_2 = Frame(self.root, bd = 4, bg = "LightSteelBlue", highlightbackground= "LightPink", highlightthickness= 3)
-        self.frame_2.place(relx = 0.1, rely= 0.5, relwidth= 0.8, relheight= 0.4) #0 esquerdo, 1 direito
+        self.frame_2.place(relx = 0.1, rely= 0.56, relwidth= 0.8, relheight= 0.4) #0 esquerdo, 1 direito
 
     def criando_botoes(self):
         #Criando botão cadastrar
@@ -97,12 +97,12 @@ class Cadastro(Funcs):
         self.bt_buscar.place(relx= 0.35, rely= 0.1, relwidth= 0.1, relheight= 0.15)
 
         #Criando botão apagar
-        self.bt_apagar = Button(self.frame_1, text="Apagar", bd= 2, bg = 'MistyRose')
-        self.bt_apagar.place(relx= 0.6, rely= 0.1, relwidth= 0.1, relheight= 0.15)
+        self.bt_apagar = Button(self.frame_1, text="Salvar", bd= 2, bg = 'MistyRose')
+        self.bt_apagar.place(relx= 0.5, rely= 0.1, relwidth= 0.1, relheight= 0.15)
 
         #Criando botão alterar
-        self.bt_alterar = Button(self.frame_1, text="Alterar", bd= 2, bg = 'MistyRose')
-        self.bt_alterar.place(relx= 0.7, rely= 0.1, relwidth= 0.1, relheight= 0.15)
+        self.bt_alterar = Button(self.frame_1, text="Apagar", bd= 2, bg = 'MistyRose')
+        self.bt_alterar.place(relx= 0.65, rely= 0.1, relwidth= 0.1, relheight= 0.15)
 
         #Criando botão limpar
         self.bt_limpar = Button(self.frame_1, text="Limpar", bd= 2, bg = 'MistyRose', command= self.limpa_tela)
@@ -120,21 +120,49 @@ class Cadastro(Funcs):
         self.lb_nome.place(relx= 0.05, rely= 0.35)
 
         self.nome_entry = Entry(self.frame_1)
-        self.nome_entry.place(relx = 0.05, rely= 0.5, relwidth= 0.9)
+        self.nome_entry.place(relx = 0.05, rely= 0.425, relwidth= 0.6)
+
+        #Criando label para colocar data de nascimento
+        self.data_nascimento = Label(self.frame_1, text="Data de nascimento")
+        self.data_nascimento.place(relx= 0.7,  rely= 0.35)
+
+        self.data_nascimento_entry = Entry(self.frame_1)
+        self.data_nascimento_entry.place(relx = 0.7, rely= 0.425, relwidth= 0.2)
 
         #Criando label e entrada do telefone
         self.lb_tel = Label(self.frame_1, text="Telefone")
-        self.lb_tel.place(relx = 0.05, rely = 0.65)
+        self.lb_tel.place(relx = 0.05, rely = 0.525)
 
         self.tel_entry = Entry(self.frame_1)
-        self.tel_entry.place(relx = 0.05, rely = 0.8, relheight= 0.09)
+        self.tel_entry.place(relx = 0.05, rely = 0.6, relheight= 0.09)
 
         #Criando label e entrada do CPF
         self.lb_cpf = Label(self.frame_1, text="CPF")
-        self.lb_cpf.place(relx= 0.5, rely= 0.65)
+        self.lb_cpf.place(relx= 0.5, rely= 0.525)
 
         self.cpf_entry = Entry(self.frame_1)
-        self.cpf_entry.place(relx= 0.5, rely= 0.8, relwidth= 0.4)
+        self.cpf_entry.place(relx= 0.5, rely= 0.6, relwidth= 0.4)
+
+        #Criando label e entrada do telefone
+        self.lb_cep = Label(self.frame_1, text="CEP")
+        self.lb_cep.place(relx = 0.05, rely = 0.725)
+
+        self.cep_entry = Entry(self.frame_1)
+        self.cep_entry.place(relx = 0.05, rely = 0.8, relheight= 0.09)
+
+        #Criando label e entrada do telefone
+        self.lb_cep = Label(self.frame_1, text="Número")
+        self.lb_cep.place(relx = 0.4, rely = 0.725)
+
+        self.cep_entry = Entry(self.frame_1)
+        self.cep_entry.place(relx = 0.4, rely = 0.8, relheight= 0.09)
+
+        #Criando label e entrada do telefone
+        self.lb_complemento = Label(self.frame_1, text="Complemento")
+        self.lb_complemento.place(relx = 0.7, rely = 0.725)
+
+        self.complemento_entry = Entry(self.frame_1)
+        self.complemento_entry.place(relx = 0.7, rely = 0.8, relheight= 0.09)
 
     def lista_frame2(self):
         #Alterando o segundo frame e definindo as colunas
