@@ -1,20 +1,55 @@
 from tkinter import *
 from tkinter import ttk
-from PIL import ImageTk, Image  
+from tkinter import messagebox
+from PIL import ImageTk, Image 
+
+import requests
+
+import sqlite3
+con = sqlite3.connect("star_saudavel.db")
+
+cur = con.cursor()
 
 root = Tk()
 
 class Funcs():
     def limpa_tela(self):
         self.nome_entry.delete(0, END)
+        self.data_nascimento_entry(0, END)
         self.id_entry.delete(0, END)
         self.tel_entry.delete(0, END)
         self.cpf_entry.delete(0, END)
+        self.cep_entry.delete(0, END)
+        self.num_entry.delete(0, END)
+        self.complemento_entry.delete(0, END)
 
     def navega_cadastro(self):
         for widgets in self.root.winfo_children():
           widgets.destroy()
         Cadastro()
+    def novoCadastro(self):
+        try:
+
+            r = requests.get('https://viacep.com.br/ws/{}/json/'.format(self.cep_entry.get()))
+            r = r.json()
+            informacoes = {
+                "cpf" : self.cpf_entry.get(), 
+                "nome_cliente" : self.nome_entry.get(), 
+                "telefone" : self.tel_entry.get(), 
+                "data_nascimento" :self.data_nascimento_entry.get(), 
+                "cep" : self.cep_entry.get(),
+                "estado" : r["uf"],
+                "cidade":  r["localidade"],
+                "bairro" : r["bairro"],
+                "logradouro" : r["logradouro"],
+                "num" : self.num_entry.get(),
+                "complemento" : self.complemento_entry.get()
+            }
+            cur.execute("INSERT INTO cliente VALUES('{}','{}','{}','{}','{}','{}','{}','{}','{}','{}','{}')".format(informacoes["cpf"],informacoes["nome_cliente"],informacoes["telefone"],informacoes["data_nascimento"],informacoes["cep"],informacoes["estado"],informacoes["cidade"],informacoes["bairro"],informacoes["logradouro"],informacoes["num"],informacoes["complemento"] ))
+            con.commit()
+            messagebox.showinfo("cep válido", informacoes)
+        except:
+            messagebox.showerror(f"CEP inválido", "O CEP {self.cep_entry.get()}, não foi encontrado!\nTente usar um formato válido. Ex: 12916-560")
 
 class Menu(Funcs):
     
@@ -31,7 +66,7 @@ class Menu(Funcs):
         self.root.resizable(True, True) #Permitindo redimensionar a janela 
         self.root.maxsize(width=988, height=788) #Limitando o maior tamanho da janela
         self.root.minsize(width= 500, height= 400)
-        self.img =Image.open('C:\\Users\\matheus.ptasinski\\Downloads\\background_star_saudavel.png')
+        self.img =Image.open('assets//background.jpg')
         self.bg = ImageTk.PhotoImage(self.img)
         # Add image
         label1 = Label(self.root, image=self.bg)
@@ -56,6 +91,7 @@ class Menu(Funcs):
         # Add buttons
         button2 = Button(frame1,text="Gráficos", font=("Times New Roman", 34), command= self.navega_cadastro)
         button2.pack(pady=5)      
+    
 
 
 
@@ -75,7 +111,7 @@ class Cadastro(Funcs):
         self.root.resizable(True, True) #Permitindo redimensionar a janela 
         self.root.maxsize(width=988, height=788) #Limitando o maior tamanho da janela
         self.root.minsize(width= 500, height= 400)
-        self.img =Image.open('C:\\Users\\matheus.ptasinski\\Downloads\\background_star_saudavel.png')
+        self.img =Image.open('assets//background.jpg')
         self.bg = ImageTk.PhotoImage(self.img)
         # Add image
         label1 = Label(self.root, image=self.bg)
@@ -89,7 +125,7 @@ class Cadastro(Funcs):
 
     def criando_botoes(self):
         #Criando botão cadastrar
-        self.bt_cadastar = Button(self.frame_1, text="Novo", bd= 2, bg = 'MistyRose')
+        self.bt_cadastar = Button(self.frame_1, text="Novo", bd= 2, bg = 'MistyRose',command= self.novoCadastro)
         self.bt_cadastar.place(relx= 0.2, rely= 0.1, relwidth= 0.1, relheight= 0.15)
 
         #Criando botão buscar
@@ -151,11 +187,11 @@ class Cadastro(Funcs):
         self.cep_entry.place(relx = 0.05, rely = 0.8, relheight= 0.09)
 
         #Criando label e entrada do telefone
-        self.lb_cep = Label(self.frame_1, text="Número")
-        self.lb_cep.place(relx = 0.4, rely = 0.725)
+        self.lb_num = Label(self.frame_1, text="Número")
+        self.lb_num.place(relx = 0.4, rely = 0.725)
 
-        self.cep_entry = Entry(self.frame_1)
-        self.cep_entry.place(relx = 0.4, rely = 0.8, relheight= 0.09)
+        self.num_entry = Entry(self.frame_1)
+        self.num_entry.place(relx = 0.4, rely = 0.8, relheight= 0.09)
 
         #Criando label e entrada do telefone
         self.lb_complemento = Label(self.frame_1, text="Complemento")
