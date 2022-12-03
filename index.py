@@ -57,6 +57,21 @@ class Funcs():
         except:
             messagebox.showerror(f"CEP inválido", "O CEP {self.cep_entry.get()}, não foi encontrado!\nTente usar um formato válido. Ex: 12916-560")
 
+            
+
+
+    def apagarCadastro(self):
+        try:
+            id = self.cpf_entry.get()
+            cur.execute("DELETE FROM cliente WHERE cpf='{}'".format(id))
+            messagebox.showinfo("Cliente excluido", "informacoes")
+        except:
+            try:
+            #id medico
+                pass
+            except:
+                messagebox.showerror(f"CEP inválido", "Médico ou clliente não encontrado")
+
 class Menu(Funcs):
     
     def __init__(self):
@@ -146,7 +161,7 @@ class Cadastro(Funcs):
         self.bt_apagar.place(relx= 0.5, rely= 0.1, relwidth= 0.1, relheight= 0.15)
 
         #Criando botão alterar
-        self.bt_alterar = Button(self.frame_1, text="Apagar", bd= 2, bg = 'MistyRose')
+        self.bt_alterar = Button(self.frame_1, text="Apagar", bd= 2, bg = 'MistyRose',command= self.apagarCadastro)
         self.bt_alterar.place(relx= 0.65, rely= 0.1, relwidth= 0.1, relheight= 0.15)
 
         #Criando botão limpar

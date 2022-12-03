@@ -60,3 +60,7 @@ informacoes = {
 
 cur.execute("SELECT * FROM cliente")
 print(cur.fetchall())
+cur.execute("SELECT * FROM cliente WHERE cpf='529.753.948-02'")
+print(cur.fetchall())
+cur.execute("DELETE FROM cliente WHERE cpf='529.753.948-02'")
+print(cur.fetchall())
