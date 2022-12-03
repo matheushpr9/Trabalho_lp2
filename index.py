@@ -27,6 +27,12 @@ class Funcs():
         for widgets in self.root.winfo_children():
           widgets.destroy()
         Cadastro()
+
+    def navega_menu(self):
+        for widgets in self.root.winfo_children():
+          widgets.destroy()
+        Menu()
+
     def novoCadastro(self):
         try:
 
@@ -124,6 +130,9 @@ class Cadastro(Funcs):
         self.frame_2.place(relx = 0.1, rely= 0.56, relwidth= 0.8, relheight= 0.4) #0 esquerdo, 1 direito
 
     def criando_botoes(self):
+        self.bt_menu = Button(self.frame_1, text="Voltar\nMenu", bd= 2, bg = 'MistyRose',command= self.navega_menu)
+        self.bt_menu.place(relx= 0.05, rely= 0.1, relwidth= 0.1, relheight= 0.15)
+
         #Criando botão cadastrar
         self.bt_cadastar = Button(self.frame_1, text="Novo", bd= 2, bg = 'MistyRose',command= self.novoCadastro)
         self.bt_cadastar.place(relx= 0.2, rely= 0.1, relwidth= 0.1, relheight= 0.15)
@@ -145,11 +154,11 @@ class Cadastro(Funcs):
         self.bt_limpar.place(relx= 0.8, rely= 0.1, relwidth= 0.1, relheight= 0.15)
 
         #Criação de label para colocar ID_Cliente e ID_Médico
-        self.lb_id = Label(self.frame_1, text="ID")
-        self.lb_id.place(relx= 0.05, rely= 0.05)
+        # self.lb_id = Label(self.frame_1, text="ID")
+        # self.lb_id.place(relx= 0.05, rely= 0.05)
 
-        self.id_entry = Entry(self.frame_1)
-        self.id_entry.place(relx = 0.05, rely= 0.2, relwidth= 0.07)
+        # self.id_entry = Entry(self.frame_1)
+        # self.id_entry.place(relx = 0.05, rely= 0.2, relwidth= 0.07)
 
         #Criando label para colocar nome
         self.lb_nome = Label(self.frame_1, text="Nome")
