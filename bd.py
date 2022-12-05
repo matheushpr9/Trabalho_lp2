@@ -15,10 +15,11 @@ cur.execute("""CREATE TABLE IF NOT EXISTS cliente(
                                             bairro text, 
                                             logradouro text, 
                                             num text, 
-                                            complemento text)""")
+                                            complemento text,
+                                            PRIMARY KEY(cpf))""")
 
 informacoes = {
-                "cpf" : 'a', 
+                "cpf" : '523.353.948-02', 
                 "nome_cliente" : 'a', 
                 "telefone" : 'a', 
                 "data_nascimento": 'a', 
@@ -30,10 +31,11 @@ informacoes = {
                 "num" :'a',
                 "complemento" : 'a'
             }
+# cur.execute("INSERT INTO cliente VALUES('{}','{}','{}','{}','{}','{}','{}','{}','{}','{}','{}')".format(informacoes["cpf"],informacoes["nome_cliente"],informacoes["telefone"],informacoes["data_nascimento"],informacoes["cep"],informacoes["estado"],informacoes["cidade"],informacoes["bairro"],informacoes["logradouro"],informacoes["num"],informacoes["complemento"] ))
+# con.commit()
+# cur.execute("CREATE TABLE IF NOT EXISTS medico(crm, nome_medico, especialidade, PRIMARY KEY(crm))")
+# cur.execute("CREATE TABLE IF NOT EXISTS consulta(str_data_h, cpf, crm, data_consulta, horario)")
 
-# cur.execute("CREATE TABLE IF NOT EXISTS medico(crm, nome_medico, especialidade)")
-# cur.execute("CREATE TABLE IF NOT EXISTS consulta(id_consulta, cpf, crm, data_consulta, horario)")
-# cur.execute("CREATE TABLE IF NOT EXISTS agenda(str_data_h, id_consulta)")
 
 # cur.execute("""
 #     INSERT INTO medico VALUES
@@ -58,9 +60,10 @@ informacoes = {
 
 # print(result)
 
-cur.execute("SELECT * FROM cliente")
-print(cur.fetchall())
-cur.execute("SELECT * FROM cliente WHERE cpf='529.753.948-02'")
-print(cur.fetchall())
-cur.execute("DELETE FROM cliente WHERE cpf='529.753.948-02'")
-print(cur.fetchall())
+# cur.execute("SELECT * FROM cliente WHERE cpf ='529.753.948-02'")
+# a = cur.fetchall() 
+# print(a)
+# cur.execute("SELECT * FROM cliente")
+# print(cur.fetchall())
+# cur.execute("DELETE FROM cliente WHERE cpf='529.753.948-02'")
+# print(cur.fetchall())

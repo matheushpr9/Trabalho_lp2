@@ -15,8 +15,8 @@ root = Tk()
 class Funcs():
     def limpa_tela(self):
         self.nome_entry.delete(0, END)
-        self.data_nascimento_entry(0, END)
-        self.id_entry.delete(0, END)
+        self.data_nascimento_entry.delete(0, END)
+        # self.id_entry.delete(0, END)
         self.tel_entry.delete(0, END)
         self.cpf_entry.delete(0, END)
         self.cep_entry.delete(0, END)
@@ -51,9 +51,12 @@ class Funcs():
                 "num" : self.num_entry.get(),
                 "complemento" : self.complemento_entry.get()
             }
-            cur.execute("INSERT INTO cliente VALUES('{}','{}','{}','{}','{}','{}','{}','{}','{}','{}','{}')".format(informacoes["cpf"],informacoes["nome_cliente"],informacoes["telefone"],informacoes["data_nascimento"],informacoes["cep"],informacoes["estado"],informacoes["cidade"],informacoes["bairro"],informacoes["logradouro"],informacoes["num"],informacoes["complemento"] ))
-            con.commit()
-            messagebox.showinfo("cep válido", informacoes)
+            try:
+                cur.execute("INSERT INTO cliente VALUES('{}','{}','{}','{}','{}','{}','{}','{}','{}','{}','{}')".format(informacoes["cpf"],informacoes["nome_cliente"],informacoes["telefone"],informacoes["data_nascimento"],informacoes["cep"],informacoes["estado"],informacoes["cidade"],informacoes["bairro"],informacoes["logradouro"],informacoes["num"],informacoes["complemento"] ))
+                con.commit()
+                messagebox.showinfo("cep válido", informacoes)
+            except:
+                 messagebox.showerror(f"Usuário já cadastrado", "O Usuário {self.nome_entry.get()}, já foi cadastrado!")
         except:
             messagebox.showerror(f"CEP inválido", "O CEP {self.cep_entry.get()}, não foi encontrado!\nTente usar um formato válido. Ex: 12916-560")
 
@@ -71,6 +74,33 @@ class Funcs():
                 pass
             except:
                 messagebox.showerror(f"CEP inválido", "Médico ou clliente não encontrado")
+    def consultaCadastro(self):
+        try:
+            id = self.cpf_entry.get()
+            cur.execute("SELECT * FROM cliente WHERE cpf ='{}'".format(id))
+            cliente = cur.fetchall() 
+            cliente
+
+            self.limpa_tela()
+            self.cpf_entry.insert(0,id)
+            self.nome_entry.insert(0, cliente[0][1])
+            self.data_nascimento_entry.insert(0, cliente[0][2])
+            self.tel_entry.insert(0, cliente[0][3])
+            self.cep_entry.insert(0, cliente[0][4])
+            self.num_entry.insert(0, cliente[0][5])
+            self.complemento_entry.insert(0, cliente[0][6])
+
+        except:
+            pass
+
+    def salvaAlteracaoCadastro(self):
+        try:
+            id = self.cpf_entry.get()
+            cur.execute("DELETE FROM cliente WHERE cpf='{}'".format(id))
+            self.novoCadastro()
+            messagebox.showinfo("Cliente Atualizado", "Cliente {} atualizado com sucesso".format(self.nome_entry.get()))
+        except:
+            pass
 
 class Menu(Funcs):
     
@@ -153,16 +183,16 @@ class Cadastro(Funcs):
         self.bt_cadastar.place(relx= 0.2, rely= 0.1, relwidth= 0.1, relheight= 0.15)
 
         #Criando botão buscar
-        self.bt_buscar = Button(self.frame_1, text="Buscar", bd= 2, bg = 'MistyRose')
+        self.bt_buscar = Button(self.frame_1, text="Buscar", bd= 2, bg = 'MistyRose', command=self.consultaCadastro)
         self.bt_buscar.place(relx= 0.35, rely= 0.1, relwidth= 0.1, relheight= 0.15)
 
         #Criando botão apagar
-        self.bt_apagar = Button(self.frame_1, text="Salvar", bd= 2, bg = 'MistyRose')
-        self.bt_apagar.place(relx= 0.5, rely= 0.1, relwidth= 0.1, relheight= 0.15)
+        self.bt_alterar = Button(self.frame_1, text="Salvar", bd= 2, bg = 'MistyRose', command= self.salvaAlteracaoCadastro)
+        self.bt_alterar.place(relx= 0.5, rely= 0.1, relwidth= 0.1, relheight= 0.15)
 
         #Criando botão alterar
-        self.bt_alterar = Button(self.frame_1, text="Apagar", bd= 2, bg = 'MistyRose',command= self.apagarCadastro)
-        self.bt_alterar.place(relx= 0.65, rely= 0.1, relwidth= 0.1, relheight= 0.15)
+        self.bt_apagar = Button(self.frame_1, text="Apagar", bd= 2, bg = 'MistyRose',command= self.apagarCadastro)
+        self.bt_apagar.place(relx= 0.65, rely= 0.1, relwidth= 0.1, relheight= 0.15)
 
         #Criando botão limpar
         self.bt_limpar = Button(self.frame_1, text="Limpar", bd= 2, bg = 'MistyRose', command= self.limpa_tela)
