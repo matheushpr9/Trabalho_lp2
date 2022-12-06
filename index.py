@@ -22,6 +22,7 @@ class Funcs():
         self.cep_entry.delete(0, END)
         self.num_entry.delete(0, END)
         self.complemento_entry.delete(0, END)
+        self.especialidade_entry.delete(0, END)
 
     def navega_cadastro(self):
         for widgets in self.root.winfo_children():
@@ -34,34 +35,42 @@ class Funcs():
         Menu()
 
     def novoCadastro(self):
-        try:
-
-            r = requests.get('https://viacep.com.br/ws/{}/json/'.format(self.cep_entry.get()))
-            r = r.json()
-            informacoes = {
-                "cpf" : self.cpf_entry.get(), 
-                "nome_cliente" : self.nome_entry.get(), 
-                "telefone" : self.tel_entry.get(), 
-                "data_nascimento" :self.data_nascimento_entry.get(), 
-                "cep" : self.cep_entry.get(),
-                "estado" : r["uf"],
-                "cidade":  r["localidade"],
-                "bairro" : r["bairro"],
-                "logradouro" : r["logradouro"],
-                "num" : self.num_entry.get(),
-                "complemento" : self.complemento_entry.get()
-            }
+        id = self.cpf_entry.get()
+        if(len(id) == 14):
             try:
-                cur.execute("INSERT INTO cliente VALUES('{}','{}','{}','{}','{}','{}','{}','{}','{}','{}','{}')".format(informacoes["cpf"],informacoes["nome_cliente"],informacoes["telefone"],informacoes["data_nascimento"],informacoes["cep"],informacoes["estado"],informacoes["cidade"],informacoes["bairro"],informacoes["logradouro"],informacoes["num"],informacoes["complemento"] ))
-                con.commit()
-                messagebox.showinfo("cep válido", informacoes)
+                r = requests.get('https://viacep.com.br/ws/{}/json/'.format(self.cep_entry.get()))
+                r = r.json()
+                informacoes = {
+                    "cpf" : self.cpf_entry.get(), 
+                    "nome_cliente" : self.nome_entry.get(), 
+                    "telefone" : self.tel_entry.get(), 
+                    "data_nascimento" :self.data_nascimento_entry.get(), 
+                    "cep" : self.cep_entry.get(),
+                    "estado" : r["uf"],
+                    "cidade":  r["localidade"],
+                    "bairro" : r["bairro"],
+                    "logradouro" : r["logradouro"],
+                    "num" : self.num_entry.get(),
+                    "complemento" : self.complemento_entry.get()
+                }
+                try:
+                    cur.execute("INSERT INTO cliente VALUES('{}','{}','{}','{}','{}','{}','{}','{}','{}','{}','{}')".format(informacoes["cpf"],informacoes["nome_cliente"],informacoes["telefone"],informacoes["data_nascimento"],informacoes["cep"],informacoes["estado"],informacoes["cidade"],informacoes["bairro"],informacoes["logradouro"],informacoes["num"],informacoes["complemento"] ))
+                    con.commit()
+                    messagebox.showinfo("cep válido", informacoes)
+                except:
+                    messagebox.showerror(f"Cliente já cadastrado", "O Cliente {self.nome_entry.get()}, já foi cadastrado!")
             except:
-                 messagebox.showerror(f"Usuário já cadastrado", "O Usuário {self.nome_entry.get()}, já foi cadastrado!")
-        except:
-            messagebox.showerror(f"CEP inválido", "O CEP {self.cep_entry.get()}, não foi encontrado!\nTente usar um formato válido. Ex: 12916-560")
-
-            
-
+                messagebox.showerror(f"CEP inválido", "O CEP {self.cep_entry.get()}, não foi encontrado!\nTente usar um formato válido. Ex: 12916-560")
+        elif(len(id) == 8):
+            try:
+                cur.execute("INSERT INTO medico VALUES('{}','{}','{}')".format(self.cpf_entry.get(),self.nome_entry.get(),self.especialidade_entry.get() ))
+                con.commit()
+                messagebox.showinfo("Médico cadastrado com sucesso!", "informacoes")
+            except:
+                messagebox.showerror(f"Médico já cadastrado", "O Médico {self.nome_entry.get()}, já foi cadastrado!")
+        
+        else:
+            messagebox.showerror(f"Formato inválido!", "Formato de CPF ou CRM inválido!\n\nUtilize o formato XXX.XXX.XXX-XX, para CPF\nE o formato XXXXX-XX, para CRM")
 
     def apagarCadastro(self):
         try:
@@ -84,8 +93,8 @@ class Funcs():
             self.limpa_tela()
             self.cpf_entry.insert(0,id)
             self.nome_entry.insert(0, cliente[0][1])
-            self.data_nascimento_entry.insert(0, cliente[0][2])
-            self.tel_entry.insert(0, cliente[0][3])
+            self.data_nascimento_entry.insert(0, cliente[0][3])
+            self.tel_entry.insert(0, cliente[0][2])
             self.cep_entry.insert(0, cliente[0][4])
             self.num_entry.insert(0, cliente[0][5])
             self.complemento_entry.insert(0, cliente[0][6])
@@ -206,18 +215,19 @@ class Cadastro(Funcs):
         # self.id_entry.place(relx = 0.05, rely= 0.2, relwidth= 0.07)
 
         #Criando label para colocar nome
-        self.lb_nome = Label(self.frame_1, text="Nome")
-        self.lb_nome.place(relx= 0.05, rely= 0.35)
+        self.lb_cpf = Label(self.frame_1, text="CPF ou CRM")
+        self.lb_cpf.place(relx= 0.05, rely= 0.35)
+        
 
-        self.nome_entry = Entry(self.frame_1)
-        self.nome_entry.place(relx = 0.05, rely= 0.425, relwidth= 0.6)
+        self.cpf_entry = Entry(self.frame_1)
+        self.cpf_entry.place(relx = 0.05, rely= 0.425, relwidth= 0.18)
 
         #Criando label para colocar data de nascimento
-        self.data_nascimento = Label(self.frame_1, text="Data de nascimento")
-        self.data_nascimento.place(relx= 0.7,  rely= 0.35)
+        self.lb_nome = Label(self.frame_1, text="Nome")
+        self.lb_nome.place(relx= 0.4,  rely= 0.35)
 
-        self.data_nascimento_entry = Entry(self.frame_1)
-        self.data_nascimento_entry.place(relx = 0.7, rely= 0.425, relwidth= 0.2)
+        self.nome_entry = Entry(self.frame_1)
+        self.nome_entry.place(relx = 0.4, rely= 0.425, relwidth= 0.6)
 
         #Criando label e entrada do telefone
         self.lb_tel = Label(self.frame_1, text="Telefone")
@@ -227,11 +237,18 @@ class Cadastro(Funcs):
         self.tel_entry.place(relx = 0.05, rely = 0.6, relheight= 0.09)
 
         #Criando label e entrada do CPF
-        self.lb_cpf = Label(self.frame_1, text="CPF")
-        self.lb_cpf.place(relx= 0.5, rely= 0.525)
+        self.data_nascimento = Label(self.frame_1, text="Data de nascimento")
+        self.data_nascimento.place(relx= 0.4, rely= 0.525)
 
-        self.cpf_entry = Entry(self.frame_1)
-        self.cpf_entry.place(relx= 0.5, rely= 0.6, relwidth= 0.4)
+        self.data_nascimento_entry = Entry(self.frame_1)
+        self.data_nascimento_entry.place(relx= 0.4, rely= 0.6, relwidth= 0.2)
+
+        #Criando label e entrada do Especialidade
+        self.lb_especialidade = Label(self.frame_1, text="Especialidade ( Médico )")
+        self.lb_especialidade.place(relx = 0.7, rely = 0.525)
+
+        self.especialidade_entry = Entry(self.frame_1)
+        self.especialidade_entry.place(relx = 0.7, rely = 0.6, relwidth= 0.3)
 
         #Criando label e entrada do telefone
         self.lb_cep = Label(self.frame_1, text="CEP")
