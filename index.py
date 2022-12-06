@@ -34,7 +34,7 @@ class Funcs():
           widgets.destroy()
         Menu()
 
-    def novoCadastro(self):
+    def novoCadastro(self,menssagem=None):
         id = self.cpf_entry.get()
         if(len(id) == 14):
             try:
@@ -56,7 +56,8 @@ class Funcs():
                 try:
                     cur.execute("INSERT INTO cliente VALUES('{}','{}','{}','{}','{}','{}','{}','{}','{}','{}','{}')".format(informacoes["cpf"],informacoes["nome_cliente"],informacoes["telefone"],informacoes["data_nascimento"],informacoes["cep"],informacoes["estado"],informacoes["cidade"],informacoes["bairro"],informacoes["logradouro"],informacoes["num"],informacoes["complemento"] ))
                     con.commit()
-                    messagebox.showinfo("cep válido", informacoes)
+                    if(menssagem != 1):
+                        messagebox.showinfo("cep válido", informacoes)
                 except:
                     messagebox.showerror(f"Cliente já cadastrado", "O Cliente {self.nome_entry.get()}, já foi cadastrado!")
             except:
@@ -65,7 +66,8 @@ class Funcs():
             try:
                 cur.execute("INSERT INTO medico VALUES('{}','{}','{}')".format(self.cpf_entry.get(),self.nome_entry.get(),self.especialidade_entry.get() ))
                 con.commit()
-                messagebox.showinfo("Médico cadastrado com sucesso!", "informacoes")
+                if(menssagem != 1):
+                    messagebox.showinfo("Médico cadastrado com sucesso!", "informacoes")
             except:
                 messagebox.showerror(f"Médico já cadastrado", "O Médico {self.nome_entry.get()}, já foi cadastrado!")
         
@@ -73,44 +75,77 @@ class Funcs():
             messagebox.showerror(f"Formato inválido!", "Formato de CPF ou CRM inválido!\n\nUtilize o formato XXX.XXX.XXX-XX, para CPF\nE o formato XXXXX-XX, para CRM")
 
     def apagarCadastro(self):
-        try:
-            id = self.cpf_entry.get()
-            cur.execute("DELETE FROM cliente WHERE cpf='{}'".format(id))
-            messagebox.showinfo("Cliente excluido", "informacoes")
-        except:
+        id = self.cpf_entry.get()
+        if(len(id) == 14):
             try:
-            #id medico
-                pass
+                cur.execute("DELETE FROM cliente WHERE cpf='{}'".format(id))
+                messagebox.showinfo("Cliente excluido", "informacoes")
+            
             except:
-                messagebox.showerror(f"CEP inválido", "Médico ou clliente não encontrado")
+                messagebox.showerror(f"Impossível deletar", "Clliente não encontrado")
+        elif(len(id) == 8):
+            try:
+                cur.execute("DELETE FROM medico WHERE crm='{}'".format(id))
+                messagebox.showinfo("Médico excluido", "informacoes")
+            
+            except:
+                messagebox.showerror(f"Impossível deletar", "Médico não encontrado no banco de dados.")
+
+        else:
+            messagebox.showerror(f"Formato inválido!", "Formato de CPF ou CRM inválido!\n\nUtilize o formato XXX.XXX.XXX-XX, para CPF\nE o formato XXXXX-XX, para CRM")
+
     def consultaCadastro(self):
-        try:
-            id = self.cpf_entry.get()
-            cur.execute("SELECT * FROM cliente WHERE cpf ='{}'".format(id))
-            cliente = cur.fetchall() 
-            cliente
+        id = self.cpf_entry.get()
+        if(len(id) == 14):
+            try:
+                cur.execute("SELECT * FROM cliente WHERE cpf ='{}'".format(id))
+                cliente = cur.fetchall() 
 
-            self.limpa_tela()
-            self.cpf_entry.insert(0,id)
-            self.nome_entry.insert(0, cliente[0][1])
-            self.data_nascimento_entry.insert(0, cliente[0][3])
-            self.tel_entry.insert(0, cliente[0][2])
-            self.cep_entry.insert(0, cliente[0][4])
-            self.num_entry.insert(0, cliente[0][5])
-            self.complemento_entry.insert(0, cliente[0][6])
+                self.limpa_tela()
+                self.cpf_entry.insert(0,id)
+                self.nome_entry.insert(0, cliente[0][1])
+                self.data_nascimento_entry.insert(0, cliente[0][3])
+                self.tel_entry.insert(0, cliente[0][2])
+                self.cep_entry.insert(0, cliente[0][4])
+                self.num_entry.insert(0, cliente[0][5])
+                self.complemento_entry.insert(0, cliente[0][6])
 
-        except:
-            pass
+            except:
+                messagebox.showerror(f"Erro na consulta", "Clliente não encontrado")
+
+        elif(len(id) == 8):
+            try:
+                cur.execute("SELECT * FROM medico WHERE crm ='{}'".format(id))
+                cliente = cur.fetchall() 
+
+                self.limpa_tela()
+                self.cpf_entry.insert(0,id)
+                self.nome_entry.insert(0, cliente[0][1])
+                self.especialidade_entry.insert(0, cliente[0][2])
+
+            except:
+                messagebox.showerror(f"Erro na consulta", "Médico não encontrado")
+        else:
+            messagebox.showerror(f"Formato inválido!", "Formato de CPF ou CRM inválido!\n\nUtilize o formato XXX.XXX.XXX-XX, para CPF\nE o formato XXXXX-XX, para CRM")
 
     def salvaAlteracaoCadastro(self):
-        try:
-            id = self.cpf_entry.get()
-            cur.execute("DELETE FROM cliente WHERE cpf='{}'".format(id))
-            self.novoCadastro()
-            messagebox.showinfo("Cliente Atualizado", "Cliente {} atualizado com sucesso".format(self.nome_entry.get()))
-        except:
-            pass
-
+        id = self.cpf_entry.get()
+        if(len(id) == 14):
+            try:
+                cur.execute("DELETE FROM cliente WHERE cpf='{}'".format(id))
+                self.novoCadastro(menssagem = 1)
+                messagebox.showinfo("Cliente Atualizado", "Cliente {} atualizado com sucesso".format(self.nome_entry.get()))
+            except:
+                messagebox.showerror(f"Erro na atualização", "Clliente não encontrado")
+        elif(len(id) == 8):
+            try:
+                cur.execute("DELETE FROM medico WHERE crm='{}'".format(id))
+                self.novoCadastro(menssagem = 1)
+                messagebox.showinfo("Médico Atualizado", "Médico {} atualizado com sucesso".format(self.nome_entry.get()))
+            except:
+                messagebox.showerror(f"Erro na consulta", "Médico não encontrado")
+        else:
+            messagebox.showerror(f"Formato inválido!", "Formato de CPF ou CRM inválido!\n\nUtilize o formato XXX.XXX.XXX-XX, para CPF\nE o formato XXXXX-XX, para CRM")
 class Menu(Funcs):
     
     def __init__(self):

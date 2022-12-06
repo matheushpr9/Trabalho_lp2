@@ -50,6 +50,7 @@ cur.execute("""
         ('134521-SP', 'Guilherme Chohfi de Miguel', 'ORTOPEDIA'),
         ('42879-SP', 'Jose Ramos Filho', 'CARDIOLOGIA')
 """)
+con.commit()
 
 # cur.execute("""
 # SELECT crm, nome_medico, especialidade
