@@ -11,6 +11,25 @@ from tkcalendar import Calendar
 
 import pandas as pd
 
+from datetime import datetime
+
+hoje = datetime.now()
+
+if(len(str(hoje.day)) == 2):
+    dia = hoje.day
+
+else:
+    dia = "0" + str(hoje.day)
+
+if(len(str(hoje.month)) == 2):
+    mes = hoje.month
+
+else:
+    mes = "0" + str(hoje.month)
+
+
+ano = hoje.year
+
 con = sqlite3.connect("star_saudavel.db")
 
 cur = con.cursor()
@@ -151,8 +170,28 @@ class Funcs():
                 messagebox.showerror(f"Erro na consulta", "Médico não encontrado")
         else:
             messagebox.showerror(f"Formato inválido!", "Formato de CPF ou CRM inválido!\n\nUtilize o formato XXX.XXX.XXX-XX, para CPF\nE o formato XXXXX-XX, para CRM")
-    def grad_date(self):
-            print("Selected Date is: " + self.cal.get_date())
+    def novaConsulta(self):
+
+        str_data_h = self.cal.get_date() + ((self.selecionarHorario.get()).replace(" ", "_"))
+
+        selecaoCliente = self.selecionarClientes.get()
+        cpf = (self.clientes[self.clientes["concat"] == selecaoCliente]).cpf
+
+        selecaoMedico = self.variable.get()
+        crm = (self.medicos[self.medicos["concat"] == selecaoMedico]).crm
+
+        selecaoHorario = self.selecionarHorario.get()
+
+
+        try:
+            cur.execute("INSERT INTO consulta VALUES('{}','{}','{}','{}','{}')".format(str_data_h, str(cpf[0]),str(crm[0]), str(selecaoHorario), str(self.cal.get_date())))
+            con.commit()
+
+            messagebox.showinfo("Consulta marcada", "Consulta de {} marcada para o dia {} {}  com o doutor {}".format(selecaoCliente, self.cal.get_date(), self.selecionarHorario.get(), selecaoMedico))
+
+        except:
+            messagebox.showerror(f"Horário ocupado", "Já existe uma consulta maracda na data e horário solicitado")
+            
 
 
 class Menu(Funcs):
@@ -320,7 +359,7 @@ class Cadastro(Funcs):
         self.tituloDiv2 = Label(self.frame_2, text="Marcar consulta")
         self.tituloDiv2.place(relx = 0.005, rely = 0.005)
 
-        self.btNovaConsulta = Button(self.frame_2, text="Nova\nConsulta", bd= 2, bg = 'MistyRose',command= self.grad_date)
+        self.btNovaConsulta = Button(self.frame_2, text="Nova\nConsulta", bd= 2, bg = 'MistyRose',command= self.novaConsulta)
         self.btNovaConsulta.place(relx= 0.125, rely= 0.12, relwidth= 0.15, relheight= 0.15)
 
         self.btBuscarConsulta = Button(self.frame_2, text="Buscar\nConsulta", bd= 2, bg = 'MistyRose',command= self.navega_menu)
@@ -336,47 +375,54 @@ class Cadastro(Funcs):
         self.btLimparCampos.place(relx= 0.825, rely= 0.12, relwidth= 0.15, relheight= 0.15)
 
         self.cal = Calendar(self.frame_2, selectmode = 'day',
-			year = 2020, month = 5,
-			day = 22)
+			year = int(ano), month = int(mes),
+			day = int(dia))
 
         self.cal.place(relx= 0.005, rely= 0.285 )
 
-
+        self.lb_medicos = Label(self.frame_2, text="Médico")
+        self.lb_medicos.place(relx = 0.4, rely = 0.355)
 
         self.variable = StringVar(self.frame_2)
         # default value
 
-        df = pd.read_sql_query("SELECT * FROM medico", con)
+        self.medicos = pd.read_sql_query("SELECT * FROM medico", con)
 
-        df["concat"] = df.nome_medico + " - " + df.especialidade
+        self.medicos["concat"] = self.medicos.nome_medico + " - " + self.medicos.especialidade
 
-        opcoesMedicos = list(df.concat)
+        self.medicos = self.medicos.sort_values(by ="concat")
+
+        opcoesMedicos = list(self.medicos.concat)
         self.variable.set(opcoesMedicos[0])
-        w = OptionMenu(self.frame_2,  self.variable, *opcoesMedicos)
-        w.place(relx= 0.4, rely= 0.45)
+        self.w = OptionMenu(self.frame_2,  self.variable, *opcoesMedicos)
+        self.w.place(relx= 0.4, rely= 0.45)
 
+        self.selecionarClientes = StringVar(self.frame_2)
 
+        self.clientes =  pd.read_sql_query("SELECT * FROM cliente", con)
 
+        self.clientes["concat"] = self.clientes.nome_cliente + " - " + self.clientes.cpf
 
-        # #Alterando o segundo frame e definindo as colunas
-        # self.listaCli = ttk.Treeview(self.frame_2, height= 3, column = ("col1", "col2", "col3", "col4"))
-        # self.listaCli.heading ("#0", text="")
-        # self.listaCli.heading ("#1", text= "ID")
-        # self.listaCli.heading ("#2", text= "Nome")
-        # self.listaCli.heading ("#3", text= "Telefone")
-        # self.listaCli.heading ("#4", text= "CPF")
+        self.clientes = self.clientes.sort_values(by ="concat")
 
-        # self.listaCli.column("#0", width= 1)
-        # self.listaCli.column("#1", width= 50)
-        # self.listaCli.column("#2", width= 200)
-        # self.listaCli.column("#3", width= 125)
-        # self.listaCli.column("#4", width= 125)
+        opcoesClientes = list(self.clientes.concat)
+        self.selecionarClientes.set(opcoesClientes[0])
+        self.caixa = OptionMenu(self.frame_2,  self.selecionarClientes, *opcoesClientes)
+        self.caixa.place(relx= 0.4, rely= 0.72)
 
-        # self.listaCli.place(relx= 0.01, rely= 0.1, relwidth= 0.95, relheight= 0.85)
+        self.lbCliente = Label(self.frame_2, text="Cliente")
+        self.lbCliente.place(relx = 0.4, rely = 0.62)
 
-        # self.scroolLista = Scrollbar(self.frame_2, orient ='vertical')
-        # self.listaCli.configure(yscroll=self.scroolLista.set)
-        # self.scroolLista.place(relx= 0.92, rely= 0.12, relwidth= 0.036, relheight= 0.82)
+        self.lbHora = Label(self.frame_2, text="Horário do atendimento :")
+        self.lbHora.place(relx = 0.4, rely = 0.92)
+
+        lista_horarios = ["das 08:00 às 09:00", "das 09:00 às 10:00", "das 10:00 às 11:00", "das 11:00 às 12:00", "das 14:00 às 15:00", "das 15:00 às 16:00", "das 16:00 às 17:00", "das 17:00 às 18:00", "das 18:00 às 19:00"]
+        
+        self.selecionarHorario = StringVar(self.frame_2)
+
+        self.selecionarHorario.set(lista_horarios[0])
+        self.caixaHorario = OptionMenu(self.frame_2,  self.selecionarHorario, *lista_horarios)
+        self.caixaHorario.place(relx= 0.625, rely= 0.9)
 
 
     

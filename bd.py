@@ -20,23 +20,28 @@ cur.execute("""CREATE TABLE IF NOT EXISTS cliente(
                                             complemento text,
                                             PRIMARY KEY(cpf))""")
 
-# informacoes = {
-#                 "cpf" : '523.353.948-02', 
-#                 "nome_cliente" : 'a', 
-#                 "telefone" : 'a', 
-#                 "data_nascimento": 'a', 
-#                 "cep" : 'a',
-#                 "estado" : 'a',
-#                 "cidade":  'a',
-#                 "bairro" : 'a',
-#                 "logradouro" :'a',
-#                 "num" :'a',
-#                 "complemento" : 'a'
-#             }
-# cur.execute("INSERT INTO cliente VALUES('{}','{}','{}','{}','{}','{}','{}','{}','{}','{}','{}')".format(informacoes["cpf"],informacoes["nome_cliente"],informacoes["telefone"],informacoes["data_nascimento"],informacoes["cep"],informacoes["estado"],informacoes["cidade"],informacoes["bairro"],informacoes["logradouro"],informacoes["num"],informacoes["complemento"] ))
-# con.commit()
+informacoes = {
+                "cpf" : '523.353.948-02', 
+                "nome_cliente" : 'Matheus Henrique Ptasinsnki Rosa', 
+                "telefone" : '11959492163', 
+                "data_nascimento": '21/04/2001', 
+                "cep" : '12916-560',
+                "estado" : 'SP',
+                "cidade":  'Bragança Paulista',
+                "bairro" : 'Jardim do Suk',
+                "logradouro" :'Rua Alexandre de Simoni',
+                "num" :'298',
+                "complemento" : '9'
+            }
+
+try:
+    cur.execute("INSERT INTO cliente VALUES('{}','{}','{}','{}','{}','{}','{}','{}','{}','{}','{}')".format(informacoes["cpf"],informacoes["nome_cliente"],informacoes["telefone"],informacoes["data_nascimento"],informacoes["cep"],informacoes["estado"],informacoes["cidade"],informacoes["bairro"],informacoes["logradouro"],informacoes["num"],informacoes["complemento"] ))
+    con.commit()
+except:
+    print("base já cadastrada")
+
 cur.execute("CREATE TABLE IF NOT EXISTS medico(crm, nome_medico, especialidade, PRIMARY KEY(crm))")
-# cur.execute("CREATE TABLE IF NOT EXISTS consulta(str_data_h, cpf, crm, data_consulta, horario)")
+cur.execute("CREATE TABLE IF NOT EXISTS consulta(str_data_h, cpf, crm, data_consulta, horario, PRIMARY KEY(str_data_h))")
 
 try:
     cur.execute("""
@@ -60,11 +65,12 @@ df = pd.read_sql_query("SELECT * FROM medico", con)
 
 df["concat"] = df.nome_medico + " - " + df.especialidade
 
-print(list(df.concat))
-# cur.execute("""
-# SELECT crm, nome_medico, especialidade
-# FROM medico;
-# """)
+print((df[df["concat"] == "Adilson de Andrade  - PEDIATRIA"]).crm)
+cur.execute("""
+SELECT *
+FROM consulta;
+""")
+print(cur.fetchall())
 
 # result = cur.fetchone();
 
