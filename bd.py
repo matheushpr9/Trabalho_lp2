@@ -1,4 +1,6 @@
 import sqlite3
+import pandas as pd
+
 con = sqlite3.connect("star_saudavel.db")
 
 cur = con.cursor()
@@ -36,22 +38,29 @@ cur.execute("""CREATE TABLE IF NOT EXISTS cliente(
 cur.execute("CREATE TABLE IF NOT EXISTS medico(crm, nome_medico, especialidade, PRIMARY KEY(crm))")
 # cur.execute("CREATE TABLE IF NOT EXISTS consulta(str_data_h, cpf, crm, data_consulta, horario)")
 
+try:
+    cur.execute("""
+        INSERT INTO medico VALUES
+            ('82045-SP', 'Adilson de Andrade', 'PEDIATRIA'),
+            ('89880-SP', 'Adrea Aparecida Peixe Valotta da Silva', 'GINECOLOGIA'),
+            ('143749-SP', 'Camilla Nicolucci', 'PSIQUIATRIA'),
+            ('20699-SP', 'Carlos Tadeu Parisi de Oliveira', 'NEUROCIRURGIA'),
+            ('63592-SP', 'Dario Vale Junior', 'RADIOLOGIA'),
+            ('125515-SP', 'Ednei Haruo Kawatake', 'ORTOPEDIA'),
+            ('75673-SP', 'Evandro de Lira Costa', 'CARDIOLOGIA'),
+            ('184391-SP', 'Gabriela de Souza Pereira', 'ANESTESIOLOGIA'),
+            ('134521-SP', 'Guilherme Chohfi de Miguel', 'ORTOPEDIA'),
+            ('42879-SP', 'Jose Ramos Filho', 'CARDIOLOGIA')
+    """)
+    con.commit()
+except:
+    print("base já cadastrada")
 
-cur.execute("""
-    INSERT INTO medico VALUES
-        ('82045-SP', 'Adilson de Andrade', 'PEDIATRIA'),
-        ('89880-SP', 'Adrea Aparecida Peixe Valotta da Silva', 'GINECOLOGIA'),
-        ('143749-SP', 'Camilla Nicolucci', 'PSIQUIATRIA'),
-        ('20699-SP', 'Carlos Tadeu Parisi de Oliveira', 'NEUROCIRURGIA'),
-        ('63592-SP', 'Dario Vale Junior', 'RADIOLOGIA'),
-        ('125515-SP', 'Ednei Haruo Kawatake', 'ORTOPEDIA'),
-        ('75673-SP', 'Evandro de Lira Costa', 'CARDIOLOGIA'),
-        ('184391-SP', 'Gabriela de Souza Pereira', 'ANESTESIOLOGIA'),
-        ('134521-SP', 'Guilherme Chohfi de Miguel', 'ORTOPEDIA'),
-        ('42879-SP', 'Jose Ramos Filho', 'CARDIOLOGIA')
-""")
-con.commit()
+df = pd.read_sql_query("SELECT * FROM medico", con)
 
+df["concat"] = df.nome_medico + " - " + df.especialidade
+
+print(list(df.concat))
 # cur.execute("""
 # SELECT crm, nome_medico, especialidade
 # FROM medico;

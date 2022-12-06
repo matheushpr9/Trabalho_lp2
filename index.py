@@ -6,6 +6,11 @@ from PIL import ImageTk, Image
 import requests
 
 import sqlite3
+
+from tkcalendar import Calendar
+
+import pandas as pd
+
 con = sqlite3.connect("star_saudavel.db")
 
 cur = con.cursor()
@@ -146,6 +151,10 @@ class Funcs():
                 messagebox.showerror(f"Erro na consulta", "Médico não encontrado")
         else:
             messagebox.showerror(f"Formato inválido!", "Formato de CPF ou CRM inválido!\n\nUtilize o formato XXX.XXX.XXX-XX, para CPF\nE o formato XXXXX-XX, para CRM")
+    def grad_date(self):
+            print("Selected Date is: " + self.cal.get_date())
+
+
 class Menu(Funcs):
     
     def __init__(self):
@@ -216,7 +225,7 @@ class Cadastro(Funcs):
         self.frame_1 = Frame(self.root, bd = 4, bg = "LightSteelBlue", highlightbackground= "LightPink", highlightthickness= 3)
         self.frame_1.place(relx = 0.1, rely= 0.04, relwidth= 0.8, relheight= 0.5) #0 esquerdo, 1 direito
         self.frame_2 = Frame(self.root, bd = 4, bg = "LightSteelBlue", highlightbackground= "LightPink", highlightthickness= 3)
-        self.frame_2.place(relx = 0.1, rely= 0.56, relwidth= 0.8, relheight= 0.4) #0 esquerdo, 1 direito
+        self.frame_2.place(relx = 0.1, rely= 0.56, relwidth= 0.8, relheight= 0.42) #0 esquerdo, 1 direito
 
     def criando_botoes(self):
         self.bt_menu = Button(self.frame_1, text="Voltar\nMenu", bd= 2, bg = 'MistyRose',command= self.navega_menu)
@@ -307,25 +316,67 @@ class Cadastro(Funcs):
         self.complemento_entry.place(relx = 0.7, rely = 0.8, relheight= 0.09)
 
     def lista_frame2(self):
-        #Alterando o segundo frame e definindo as colunas
-        self.listaCli = ttk.Treeview(self.frame_2, height= 3, column = ("col1", "col2", "col3", "col4"))
-        self.listaCli.heading ("#0", text="")
-        self.listaCli.heading ("#1", text= "ID")
-        self.listaCli.heading ("#2", text= "Nome")
-        self.listaCli.heading ("#3", text= "Telefone")
-        self.listaCli.heading ("#4", text= "CPF")
+        #Criando label e entrada do Especialidade
+        self.tituloDiv2 = Label(self.frame_2, text="Marcar consulta")
+        self.tituloDiv2.place(relx = 0.005, rely = 0.005)
 
-        self.listaCli.column("#0", width= 1)
-        self.listaCli.column("#1", width= 50)
-        self.listaCli.column("#2", width= 200)
-        self.listaCli.column("#3", width= 125)
-        self.listaCli.column("#4", width= 125)
+        self.btNovaConsulta = Button(self.frame_2, text="Nova\nConsulta", bd= 2, bg = 'MistyRose',command= self.grad_date)
+        self.btNovaConsulta.place(relx= 0.125, rely= 0.12, relwidth= 0.15, relheight= 0.15)
 
-        self.listaCli.place(relx= 0.01, rely= 0.1, relwidth= 0.95, relheight= 0.85)
+        self.btBuscarConsulta = Button(self.frame_2, text="Buscar\nConsulta", bd= 2, bg = 'MistyRose',command= self.navega_menu)
+        self.btBuscarConsulta.place(relx= 0.30, rely= 0.12, relwidth= 0.15, relheight= 0.15)
 
-        self.scroolLista = Scrollbar(self.frame_2, orient ='vertical')
-        self.listaCli.configure(yscroll=self.scroolLista.set)
-        self.scroolLista.place(relx= 0.92, rely= 0.12, relwidth= 0.036, relheight= 0.82)
+        self.btSalvarAlteracao = Button(self.frame_2, text="Salvar\nAlteração", bd= 2, bg = 'MistyRose',command= self.navega_menu)
+        self.btSalvarAlteracao.place(relx= 0.475, rely= 0.12, relwidth= 0.15, relheight= 0.15)
+
+        self.btApagarConsulta = Button(self.frame_2, text="Apagar\nConsulta", bd= 2, bg = 'MistyRose',command= self.navega_menu)
+        self.btApagarConsulta.place(relx= 0.650, rely= 0.12, relwidth= 0.15, relheight= 0.15)
+
+        self.btLimparCampos = Button(self.frame_2, text="Limpar\nCampos", bd= 2, bg = 'MistyRose',command= self.navega_menu)
+        self.btLimparCampos.place(relx= 0.825, rely= 0.12, relwidth= 0.15, relheight= 0.15)
+
+        self.cal = Calendar(self.frame_2, selectmode = 'day',
+			year = 2020, month = 5,
+			day = 22)
+
+        self.cal.place(relx= 0.005, rely= 0.285 )
+
+
+
+        self.variable = StringVar(self.frame_2)
+        # default value
+
+        df = pd.read_sql_query("SELECT * FROM medico", con)
+
+        df["concat"] = df.nome_medico + " - " + df.especialidade
+
+        opcoesMedicos = list(df.concat)
+        self.variable.set(opcoesMedicos[0])
+        w = OptionMenu(self.frame_2,  self.variable, *opcoesMedicos)
+        w.place(relx= 0.4, rely= 0.45)
+
+
+
+
+        # #Alterando o segundo frame e definindo as colunas
+        # self.listaCli = ttk.Treeview(self.frame_2, height= 3, column = ("col1", "col2", "col3", "col4"))
+        # self.listaCli.heading ("#0", text="")
+        # self.listaCli.heading ("#1", text= "ID")
+        # self.listaCli.heading ("#2", text= "Nome")
+        # self.listaCli.heading ("#3", text= "Telefone")
+        # self.listaCli.heading ("#4", text= "CPF")
+
+        # self.listaCli.column("#0", width= 1)
+        # self.listaCli.column("#1", width= 50)
+        # self.listaCli.column("#2", width= 200)
+        # self.listaCli.column("#3", width= 125)
+        # self.listaCli.column("#4", width= 125)
+
+        # self.listaCli.place(relx= 0.01, rely= 0.1, relwidth= 0.95, relheight= 0.85)
+
+        # self.scroolLista = Scrollbar(self.frame_2, orient ='vertical')
+        # self.listaCli.configure(yscroll=self.scroolLista.set)
+        # self.scroolLista.place(relx= 0.92, rely= 0.12, relwidth= 0.036, relheight= 0.82)
 
 
     
