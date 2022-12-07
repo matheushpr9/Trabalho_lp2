@@ -1,7 +1,16 @@
 from tkinter import *
 from tkinter import ttk
+import tkinter
 from tkinter import messagebox
 from PIL import ImageTk, Image 
+
+import matplotlib
+
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_tkagg import (
+    FigureCanvasTkAgg,
+    NavigationToolbar2Tk
+)
 
 import requests
 
@@ -53,10 +62,21 @@ class Funcs():
           widgets.destroy()
         Cadastro()
 
+    def navega_graficos(self):
+        for widgets in self.root.winfo_children():
+          widgets.destroy()
+        app = App()
+        app.mainloop()
+
     def navega_menu(self):
         for widgets in self.root.winfo_children():
           widgets.destroy()
         Menu()
+
+    def navega_graficos(self):
+        for widgets in self.root.winfo_children():
+          widgets.destroy()
+        Graficos()
 
     def novoCadastro(self,menssagem=None):
         id = self.cpf_entry.get()
@@ -176,22 +196,101 @@ class Funcs():
 
         selecaoCliente = self.selecionarClientes.get()
         cpf = (self.clientes[self.clientes["concat"] == selecaoCliente]).cpf
+        cpf.index = [0]
 
         selecaoMedico = self.variable.get()
         crm = (self.medicos[self.medicos["concat"] == selecaoMedico]).crm
+        crm.index = [0]
 
         selecaoHorario = self.selecionarHorario.get()
 
-
         try:
-            cur.execute("INSERT INTO consulta VALUES('{}','{}','{}','{}','{}')".format(str_data_h, str(cpf[0]),str(crm[0]), str(selecaoHorario), str(self.cal.get_date())))
+           
+            cur.execute("INSERT INTO consulta VALUES('{}','{}','{}','{}','{}')".format(str_data_h, str(cpf[0]),str(crm[0]), str(self.cal.get_date()), str(selecaoHorario)))
             con.commit()
 
             messagebox.showinfo("Consulta marcada", "Consulta de {} marcada para o dia {} {}  com o doutor {}".format(selecaoCliente, self.cal.get_date(), self.selecionarHorario.get(), selecaoMedico))
 
+            self.limparCampos()
+
+
+
         except:
             messagebox.showerror(f"Horário ocupado", "Já existe uma consulta maracda na data e horário solicitado")
             
+    def buscarConsulta(self):
+        str_data_h = self.cal.get_date() + ((self.selecionarHorario.get()).replace(" ", "_"))
+        try:
+            cur.execute("SELECT * FROM consulta WHERE str_data_h ='{}'".format(str_data_h))
+            consulta = cur.fetchall() 
+            consulta = consulta[0]
+
+            cliente = (self.clientes[self.clientes["cpf"] == consulta[1]]).concat
+            cliente.index = [0]
+
+            medico = (self.medicos[self.medicos["crm"] == consulta[2]]).concat
+            medico.index = [0]
+
+            self.selecionarClientes.set(cliente[0])
+            self.variable.set(medico[0])
+        except:
+            messagebox.showerror("Horário Livre", "O horário das {}, no dia {},\nestá livre!".format( self.selecionarHorario.get(), self.cal.get_date()))
+
+    def apagarConslta(self):
+        str_data_h = self.cal.get_date() + ((self.selecionarHorario.get()).replace(" ", "_"))
+        try:
+            cur.execute("DELETE FROM consulta WHERE str_data_h='{}'".format(str_data_h))
+            messagebox.showinfo("Consulta excluida", "informacoes")
+
+            
+            self.limparCampos()
+        
+        except:
+            messagebox.showerror(f"Impossível deletar", "Consulta não encontrado")
+
+    def salvarAlteracaoConsulta(self):
+        str_data_h = self.cal.get_date() + ((self.selecionarHorario.get()).replace(" ", "_"))
+        try:
+            cur.execute("DELETE FROM consulta WHERE str_data_h='{}'".format(str_data_h))
+            
+            selecaoCliente = self.selecionarClientes.get()
+            cpf = (self.clientes[self.clientes["concat"] == selecaoCliente]).cpf
+            cpf.index = [0]
+
+            selecaoMedico = self.variable.get()
+            crm = (self.medicos[self.medicos["concat"] == selecaoMedico]).crm
+            crm.index = [0]
+
+            selecaoHorario = self.selecionarHorario.get()
+
+            try:
+            
+                cur.execute("INSERT INTO consulta VALUES('{}','{}','{}','{}','{}')".format(str_data_h, str(cpf[0]),str(crm[0]), str(selecaoHorario), str(self.cal.get_date())))
+                con.commit()
+
+                messagebox.showinfo("Consulta Alterada", "Consulta de {} Alterada para para o dia {} {}  com o doutor {}".format(selecaoCliente, self.cal.get_date(), self.selecionarHorario.get(), selecaoMedico))
+
+                self.limparCampos()
+
+
+
+            except:
+                messagebox.showerror(f"Horário ocupado", "Já existe uma consulta maracda na data e horário solicitado")
+            
+
+
+            
+        except:
+            messagebox.showerror(f"Impossível deletar", "Consulta não encontrado")
+
+
+    def limparCampos(self):
+        self.selecionarHorario.set(" ")
+        self.selecionarClientes.set(" ")
+        self.variable.set(" ")
+
+    
+
 
 
 class Menu(Funcs):
@@ -232,12 +331,87 @@ class Menu(Funcs):
         button1.pack(pady=5)      
 
         # Add buttons
-        button2 = Button(frame1,text="Gráficos", font=("Times New Roman", 34), command= self.navega_cadastro)
+        button2 = Button(frame1,text="Gráficos", font=("Times New Roman", 34), command= self.navega_graficos)
         button2.pack(pady=5)      
     
+class App(tkinter.Tk):
+
+    def __init__(self):
+        self.root = root
+        root.mainloop()
+        super().__init__()
+
+        self.title('Dia x Número de Consultas')
+
+        
+
+class Graficos(Funcs):
+    
+    def __init__(self):
+        self.root = root
+        self.tela()
+        self.div_tela()
+        self.conteudoDiv()
+        root.mainloop()
+        
+    def tela(self):
+        self.root.title("Star saudável || Gráficos") #Definindo nome da janela
+        self.root.configure(background='White') #Definindo cor de fundo
+        self.root.geometry("700x500") #Configurando tamanho da janela
+        self.root.resizable(True, True) #Permitindo redimensionar a janela 
+        self.root.maxsize(width=988, height=788) #Limitando o maior tamanho da janela
+        self.root.minsize(width= 500, height= 400)
+        self.img =Image.open('assets//background.jpg')
+        self.bg = ImageTk.PhotoImage(self.img)
+        # Add image
+        label1 = Label(self.root, image=self.bg)
+        label1.place(x = 0,y = 0)
+
+    def div_tela(self):
+        self.frame_1 = Frame(self.root, bd = 4, bg = "LightSteelBlue", highlightbackground= "LightPink", highlightthickness= 3)
+        self.frame_1.place(relx = 0.05, rely= 0.05, relwidth= 0.85, relheight= 0.85) #0 esquerdo, 1 direito
+
+    def conteudoDiv(self):
+        self.bt_menu = Button(self.frame_1, text="Voltar\nMenu", bd= 2, bg = 'MistyRose',command= self.navega_menu)
+        self.bt_menu.place(relx= 0.01, rely= 0.01, relwidth= 0.1, relheight= 0.15)
+
+        self.bt_grafico = Button(self.frame_1, text="Dia X \nquant. consultas", bd= 2, bg = 'MistyRose',command= self.navega_graficos)
+        self.bt_grafico.place(relx= 0.2, rely= 0.01, relwidth= 0.1, relheight= 0.15)
+
+        df = pd.read_sql_query("SELECT * FROM consulta", con)
+
+        dados = {}
+
+        grupos = df.groupby("data_consulta").groups
 
 
+        for dado in grupos:
+            print(dado)
+            dados[dado] = len(grupos[dado])
 
+        languages = dados.keys()
+        popularity = dados.values()
+
+        # create a figure
+        figure = Figure(figsize=(6, 4), dpi=100)
+
+        # create FigureCanvasTkAgg object
+        figure_canvas = FigureCanvasTkAgg(figure, self.root)
+
+        # create the toolbar
+        NavigationToolbar2Tk(figure_canvas, self.root)
+
+        # create axes
+        axes = figure.add_subplot()
+
+        # create the barchart
+        axes.bar(languages, popularity)
+        axes.set_title('Dia da semana')
+        axes.set_ylabel('Número de consultas')
+
+        figure_canvas.get_tk_widget().place(relx= 0.2, rely= 0.01, relwidth= 0.8, relheight= 0.8)
+
+    
 class Cadastro(Funcs):
     def __init__(self):
         self.root = root
@@ -362,16 +536,16 @@ class Cadastro(Funcs):
         self.btNovaConsulta = Button(self.frame_2, text="Nova\nConsulta", bd= 2, bg = 'MistyRose',command= self.novaConsulta)
         self.btNovaConsulta.place(relx= 0.125, rely= 0.12, relwidth= 0.15, relheight= 0.15)
 
-        self.btBuscarConsulta = Button(self.frame_2, text="Buscar\nConsulta", bd= 2, bg = 'MistyRose',command= self.navega_menu)
+        self.btBuscarConsulta = Button(self.frame_2, text="Buscar\nConsulta", bd= 2, bg = 'MistyRose',command= self.buscarConsulta)
         self.btBuscarConsulta.place(relx= 0.30, rely= 0.12, relwidth= 0.15, relheight= 0.15)
 
-        self.btSalvarAlteracao = Button(self.frame_2, text="Salvar\nAlteração", bd= 2, bg = 'MistyRose',command= self.navega_menu)
+        self.btSalvarAlteracao = Button(self.frame_2, text="Salvar\nAlteração", bd= 2, bg = 'MistyRose',command= self.salvarAlteracaoConsulta)
         self.btSalvarAlteracao.place(relx= 0.475, rely= 0.12, relwidth= 0.15, relheight= 0.15)
 
-        self.btApagarConsulta = Button(self.frame_2, text="Apagar\nConsulta", bd= 2, bg = 'MistyRose',command= self.navega_menu)
+        self.btApagarConsulta = Button(self.frame_2, text="Apagar\nConsulta", bd= 2, bg = 'MistyRose',command= self.apagarConslta)
         self.btApagarConsulta.place(relx= 0.650, rely= 0.12, relwidth= 0.15, relheight= 0.15)
 
-        self.btLimparCampos = Button(self.frame_2, text="Limpar\nCampos", bd= 2, bg = 'MistyRose',command= self.navega_menu)
+        self.btLimparCampos = Button(self.frame_2, text="Limpar\nCampos", bd= 2, bg = 'MistyRose',command= self.limparCampos)
         self.btLimparCampos.place(relx= 0.825, rely= 0.12, relwidth= 0.15, relheight= 0.15)
 
         self.cal = Calendar(self.frame_2, selectmode = 'day',
@@ -393,7 +567,7 @@ class Cadastro(Funcs):
         self.medicos = self.medicos.sort_values(by ="concat")
 
         opcoesMedicos = list(self.medicos.concat)
-        self.variable.set(opcoesMedicos[0])
+        #self.variable.set(opcoesMedicos[0])
         self.w = OptionMenu(self.frame_2,  self.variable, *opcoesMedicos)
         self.w.place(relx= 0.4, rely= 0.45)
 
@@ -406,7 +580,7 @@ class Cadastro(Funcs):
         self.clientes = self.clientes.sort_values(by ="concat")
 
         opcoesClientes = list(self.clientes.concat)
-        self.selecionarClientes.set(opcoesClientes[0])
+        #self.selecionarClientes.set(opcoesClientes[0])
         self.caixa = OptionMenu(self.frame_2,  self.selecionarClientes, *opcoesClientes)
         self.caixa.place(relx= 0.4, rely= 0.72)
 
@@ -420,7 +594,7 @@ class Cadastro(Funcs):
         
         self.selecionarHorario = StringVar(self.frame_2)
 
-        self.selecionarHorario.set(lista_horarios[0])
+        self.selecionarHorario.set(" ")
         self.caixaHorario = OptionMenu(self.frame_2,  self.selecionarHorario, *lista_horarios)
         self.caixaHorario.place(relx= 0.625, rely= 0.9)
 

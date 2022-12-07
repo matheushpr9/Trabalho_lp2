@@ -61,16 +61,26 @@ try:
 except:
     print("base já cadastrada")
 
-df = pd.read_sql_query("SELECT * FROM medico", con)
+df = pd.read_sql_query("SELECT * FROM consulta", con)
 
-df["concat"] = df.nome_medico + " - " + df.especialidade
+# df["concat"] = df.nome_medico + " - " + df.especialidade
 
-print((df[df["concat"] == "Adilson de Andrade  - PEDIATRIA"]).crm)
-cur.execute("""
-SELECT *
-FROM consulta;
-""")
-print(cur.fetchall())
+# print((df[df["concat"] == "Adilson de Andrade  - PEDIATRIA"]).crm)
+# cur.execute("""
+# SELECT *
+# FROM consulta;
+# """)
+# print(cur.fetchall())
+
+dados = {}
+
+grupos = df.groupby("data_consulta").groups
+
+
+for dado in grupos:
+    print(dado)
+    dados[dado] = len(grupos[dado])
+
 
 # result = cur.fetchone();
 

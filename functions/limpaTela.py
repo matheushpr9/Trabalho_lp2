@@ -1,9 +1,0 @@
-def limpa_tela(self):
-        self.nome_entry.delete(0, END)
-        self.data_nascimento_entry(0, END)
-        self.id_entry.delete(0, END)
-        self.tel_entry.delete(0, END)
-        self.cpf_entry.delete(0, END)
-        self.cep_entry.delete(0, END)
-        self.num_entry.delete(0, END)
-        self.complemento_entry.delete(0, END)
